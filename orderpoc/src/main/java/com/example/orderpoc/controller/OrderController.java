@@ -1,5 +1,7 @@
 package com.example.orderpoc.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +15,10 @@ import org.springframework.web.client.RestTemplate;
 
 import com.example.orderpoc.entity.Order;
 import com.example.orderpoc.entity.Response;
+import com.example.orderpoc.entity.User;
 import com.example.orderpoc.entity.UserList;
 import com.example.orderpoc.repository.OrderRepository;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @RequestMapping("/orders")
 @RestController
@@ -32,6 +36,7 @@ public class OrderController {
 		return order;
 	}
 	 @GetMapping("/allUsers")
+	 @HystrixCommand(fallbackMethod = "fallBackgetAllUsers")
 	public UserList  getAllUsers(){
 //		 UserList forObject = restTemplate.getForObject("http://localhost:8082/api/allUsers/", UserList.class);
 		    UserList forObject = restTemplate.getForObject("http://loginpoc/api/allUsers/", UserList.class);
@@ -39,5 +44,15 @@ public class OrderController {
 		 
 			
 	}
+	 public UserList	 fallBackgetAllUsers() {
+		ArrayList<User> arrayList= new ArrayList<User>();
+		arrayList.add(new User(1, "error please wait for sometime", "error"));
+	
+		 UserList userList= new UserList();
+		 userList.setUser( arrayList);
+		 
+		return userList;
+		 
+	 }
 	
 }
